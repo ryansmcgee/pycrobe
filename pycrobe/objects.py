@@ -282,8 +282,6 @@ class DilutionSeries:
 			self.dilutions[d].add(self.dilutions[d-1].sample(self.transferVolume))
 
 			
-
-
 	def getDilution(self, dilution):
 		d = numpy.abs(dilution)
 		return self.dilutions[d]
