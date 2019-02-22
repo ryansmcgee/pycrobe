@@ -246,10 +246,10 @@ class CultureVolume:
 		print "\tVolume\t\t\t= " + ("%.3f" % self.totalVolume()) + " mL"
 		print "\tCarrying Cap.\t= " + ( '%.2E' % Decimal(str( self.totalCarryingCapacity() )) ) + " cfu/mL"
 		print "\tDensity\t\t\t= " + ( '%.2E' % Decimal(str( self.totalCellDensity() )) ) + " cfu/mL"
-		print "\tTotal Cell Count\t= " + ( '%.2E' % Decimal(str( self.totalCellCount() )) ) + " cfu"
+		print "\tTotal CellCount\t= " + ( '%.2E' % Decimal(str( self.totalCellCount() )) ) + " cfu"
 		if(len(self.inoculums)>0):
 			for inoculum in self.inoculums:
-				print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount/self.totalVolume() )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\t\tgrowthPhase\t\t= " + inoculum.growthPhase
+				print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount/self.totalVolume() )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\n\t\tgrowthPhase\t\t= " + inoculum.growthPhase
 		else:
 			print "\t(no inoculums)"
 		if(len(self.drugs)>0):
