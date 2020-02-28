@@ -372,7 +372,7 @@ class CultureDynamics(object):
 	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 	def run(self, time, dt, inoculums, media, temp, noise_r=0.0, downsample_output_dt=None):
-		
+
 		I 	= len(inoculums)
 
 		T 	= int(time/dt)
@@ -384,7 +384,7 @@ class CultureDynamics(object):
 		rho 			= numpy.zeros(I)
 		k_r 			= numpy.zeros(I)
 		sigma 			= numpy.zeros(I)
-
+		
 		optimalTemp			= numpy.zeros(I)
 		meanLagExitTime 	= numpy.zeros(I)
 		stdevLagExitTime 	= numpy.zeros(I)
@@ -407,12 +407,11 @@ class CultureDynamics(object):
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		N 		= numpy.zeros(shape=(T+1,I))	
-		r 		= numpy.zeros(shape=(T+1,I))	
+		r 		= numpy.zeros(shape=(T+1,I))		
+		S 		= numpy.zeros(shape=(T+1,1))		
 
 		growthPhase 		= [''] * I
 		growthCycleTimer	= numpy.zeros(I)
-
-		S 		= numpy.zeros(shape=(T+1,1))		
 
 		#--------------------------------------------------
 
@@ -423,8 +422,6 @@ class CultureDynamics(object):
 
 			growthPhase[i] 		= inoculum.growthPhase
 			growthCycleTimer[i] = inoculum.growthCycleTimer
-
-		#--------------------------------------------------
 
 		S[0] = media.nutrient.concentration * media.volume
 
@@ -439,7 +436,7 @@ class CultureDynamics(object):
 			N[t+1] 		= N[t] + dN*dt
 			N[t+1] 		= numpy.clip(N[t+1], a_min=0, a_max=None)
 
-			dS 			= -sigma * numpy.sum(r[t]*N[t])
+			dS 			= numpy.sum(-sigma*r[t]*N[t])
 			S[t+1] 		= S[t] + dS*dt
 			S[t+1] 		= numpy.clip(S[t+1], a_min=0, a_max=None)
 
@@ -456,13 +453,23 @@ class CultureDynamics(object):
 			# Update the current growth cycle phase:
 			for i in range(I):
 				growthCycleTimer[i] += dt
-				if( (S[t] / (k_r + S[t])) <= 0.01 ):
+				if( (S[t] / (k_r[i] + S[t])) <= 0.01 ):
 					growthPhase[i] = 'stationary'
-				elif( growthPhase[i] == 'stationary' and (S[t] / (k_r + S[t])) > 0.01 ):
+				elif( growthPhase[i] == 'stationary' and (S[t] / (k_r[i] + S[t])) > 0.01 ):
 					growthPhase[i] = 'lag'
 					growthCycleTimer[i] = 0.0
-				elif( growthPhase[i] == 'lag' and (rho[i]-r[i])/rho[i] < 0.5 ):
+				elif( growthPhase[i] == 'lag' and (rho[i]-r[t][i])/rho[i] < 0.5 ):
 					growthPhase[i] = 'exponential'
+
+
+			# print "N["+str(t)+"] = " + str(N[t])
+			# print "r["+str(t)+"] = " + str(r[t])
+			# print "S["+str(t)+"] = " + str(S[t])
+			# print "------------------------------"
+			# print "N["+str(t+1)+"] = " + str(N[t+1])
+			# print "r["+str(t+1)+"] = " + str(r[t+1])
+			# print "S["+str(t+1)+"] = " + str(S[t+1])
+			# print "=============================="
 
 
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -474,9 +481,6 @@ class CultureDynamics(object):
 			inoculum.cellCount 	= N[-1][i]
 			inoculum.growthRate = r[-1][i]
 
-			inoculum.growthPhase 		= growthPhase[i]
-			inoculum.growthCycleTimer	= growthCycleTimer[i]
-			
 		media.nutrient.concentration = S[-1] / media.volume
 
 
@@ -484,17 +488,22 @@ class CultureDynamics(object):
 		# UPDATE THE DATAFRAME HOLDING THE VARIABLE TIME SERIES:
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+		t_vals 			= numpy.arange(start=0, stop=time+dt, step=dt)[:(T+1)] 			# <- last index slice is just to make sure t_vals is same length as var/param arrays generated above
+		t_vals_macro 	= t_vals if self.num_runs==0 else t_vals+self.data['t'].max() 	# in terms of an overall timer, assume that each run starts immediately where the previous run left off
+
 		for i, strainName in enumerate([inoculum.strain.name for inoculum in inoculums]):
-			t_vals 			= numpy.arange(start=0, stop=time+dt, step=dt)
-			t_vals_macro 	= t_vals if self.num_runs==0 else t_vals+self.data['t'].max() 	# in terms of an overall timer, assume that each run starts immediately where the previous run left off
 			run_timeseries 	= {
-								'run': [self.num_runs]*(T+1),
-								'strain': [strainName]*(T+1),
-								't': t_vals_macro,
-								't_run': t_vals,
-								'N': N[:,i],
-								'r': r[:,i],
-								'S': S[:,i]
+								'run': 			[self.num_runs]*(T+1),
+								'strain': 		[strainName]*(T+1),
+								't': 			t_vals_macro,
+								't_run':		t_vals,
+								'N': 			N[:,i],
+								'r': 			r[:,i],
+								'S': 			S[:,0],
+								'rho':			[rho[i]]*(T+1),
+								'k_r':			[k_r[i]]*(T+1),
+								'sigma': 		[sigma[i]]*(T+1),
+								'media_volume': [media.volume]*(T+1)
 							  }
 
 			strain_run_data = pandas.DataFrame.from_dict(run_timeseries)
@@ -513,20 +522,36 @@ class CultureDynamics(object):
 	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-	def figure(self):
+	def figure(self, plot_density=True):
 		import matplotlib.pyplot as pyplot
 		import seaborn
 
-		fig = pyplot.figure(figsize=(16,9))
-		ax1 = pyplot.subplot(221)
-		ax2 = pyplot.subplot(223)
-		ax3 = pyplot.subplot(222)
+		fig, ax = pyplot.subplots(2,1, figsize=(9,9))
 
-		seaborn.lineplot(data=self.data, ax=ax1, x="t", y="N", hue="strain")
+		t_series = self.data[self.data['strain']==self.data['strain'].unique()[0]]['t'].values
+		ax[0].plot(t_series, [1e6]*len(t_series), linestyle='-', color='lightgray')
+		ax[1].plot(t_series, [0.0]*len(t_series), linestyle='-', color='lightgray')
 
-		seaborn.lineplot(data=self.data, ax=ax2, x="t", y="r", hue="strain")
+		strains 		= self.data['strain'].unique()
+		strain_palette 	= seaborn.color_palette("husl", len(strains))
+		for i, strain in enumerate(strains):
 
-		seaborn.lineplot(data=self.data, ax=ax3, x="t", y="S")
+			t_series 	= self.data[self.data['strain']==strain]['t'].values
+			N_series 	= self.data[self.data['strain']==strain]['N'].values
+			r_series 	= self.data[self.data['strain']==strain]['r'].values
+			mediaVolume_series 	= self.data[self.data['strain']==strain]['media_volume'].values
+			
+			
+			if(plot_density):
+				ax[0].plot(t_series, N_series/mediaVolume_series, linestyle='-', color=strain_palette[i])
+				ax[0].set_ylabel("population density (cells/mL)")
+			else:
+				ax[0].plot(t_series, N_series, linestyle='-', color=strain_palette[i])
+				ax[0].set_ylabel("population size (num cells)")
+			
+			ax[1].plot(t_series, r_series, linestyle='-', color=strain_palette[i])
+			ax[1].set_ylabel("growth rate")
+
 
 		seaborn.set_style("ticks")
 		seaborn.despine()
@@ -715,22 +740,6 @@ class Culture(object):
 			print "\t(no inoculums)"
 		#----------
 		self.media.info()
-		# if(self.media.nutrient is not None):
-		# 	print "\tNutrient " + self.media.nutrient.name + ":\n" + "\t\tconcentration\t= " + ("%.2E" % self.media.nutrient.concentration) + " ug/mL"
-		# else:
-		# 	print "\t(no nutrient)"
-		# #----------
-		# if(len(self.media.drugs)>0):
-		# 	for drug in self.media.drugs:
-		# 		print "\tDrug " + drug.name + ":\n" + "\t\tconcentration\t= " + ("%.3f" % drug.concentration) + " ug/mL"
-		# else:
-		# 		print "\t(no drugs)"
-		# #----------
-		# if(len(self.media.solutes)>0):
-		# 	for solute in self.media.solutes:
-		# 		print "\tSolute " + solute.name + ":\n" + "\t\tconcentration\t= " + ("%.3f" % solute.concentration) + " ug/mL"
-		# else:
-		# 		print "\t(no other solutes)"
 
 
 ##################################################

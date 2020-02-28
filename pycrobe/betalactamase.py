@@ -564,19 +564,24 @@ class BetaLactamaseDynamics(CultureDynamics):
 			
 			
 			if(plot_density):
-				ax[0,0].plot(t_series, N_series/mediaVolume_series, linestyle='--', color=strain_palette[i])
+				ax[0,0].plot(t_series, N_series/mediaVolume_series, linestyle='-', color=strain_palette[i])
+				ax[0,0].set_ylabel("population density (cells/mL)")
 			else:
 				ax[0,0].plot(t_series, N_series, linestyle='-', color=strain_palette[i])
+				ax[0,0].set_ylabel("population size (num cells)")
 			
 			ax[1,0].plot(t_series, r_series, linestyle='--', color=strain_palette[i], alpha=0.5)
 			ax[1,0].plot(t_series, l_series, linestyle=':', color=strain_palette[i], alpha=0.5)
 			ax[1,0].plot(t_series, r_series-l_series, linestyle='-', color=strain_palette[i])
+			ax[1,0].set_ylabel("growth and lysis rates")
 
 			ax[0,1].plot(t_series, k_l_series, linestyle=':', color=strain_palette[i], alpha=0.5)
 			ax[0,1].plot(t_series, A_series, linestyle='-', color=strain_palette[i])
+			ax[0,1].set_ylabel("antibiotic concentration (ug/mL)")
 			
 			ax[1,1].plot(t_series, B_series, linestyle='-', color=strain_palette[i])
 			ax[1,1].plot(t_series, Bext_series, linestyle='--', color=strain_palette[i])
+			ax[1,1].set_ylabel("B-lactamase concentration")
 			
 		ax[0,1].plot(t_series, Aext_series, linestyle='--', color='black')
 
