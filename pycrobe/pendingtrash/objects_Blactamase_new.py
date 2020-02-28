@@ -13,28 +13,203 @@ import scipy.stats
 
 class Media:
 
-	def __init__(self, volume, carrying_capacity=2.0e9):
+	def __init__(self, volume, drugs=[], solutes=[], nutrient=None, isIntracellular=False):
 
-		self.volume				= volume
-		self.carryingCapacity 	= carrying_capacity
+		self.volume		= volume
+
+		self.drugs		= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
+		for drug in (drugs if isinstance(drugs, list) else [drugs]):
+			self.drugs.append(drug)
+
+		self.solutes	= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
+		for solute in (solutes if isinstance(solutes, list) else [solutes]):
+			self.solutes.append(solute)					
+
+		self.nutrient	= nutrient
+
+		self.isIntracellular = isIntracellular
 
 
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def sample(self, sample_proportion):
+		# TODO
+		return
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def add(self, added_media):
+		# TODO
+		return
+
+
+##################################################
+##################################################
+
+
+class Solute:
+
+	def __init__(self, name="Solute", concentration=0):
+
+		self.name 			= name
+
+		self.concentration 	= concentration
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def sample(self, sample_proportion):
+		# TODO
+		return
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def add(self, added_solute):
+		# TODO
+		return
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def __eq__(self, other):
+		return(	self.name == other.name )
+
+
+##################################################
+##################################################
+
+
+class Nutrient(Solute):
+
+	def __init__(self, name="Nutrient", concentration=0):
+
+		super.__init__(name, concentration)
+
+
+##################################################
+##################################################
+
+
+class Drug(Solute): 
+
+	def __init__(self, name="Drug", concentration=0, decay_rate=0):
+
+		super.__init__(name, concentration)
+
+		self.decayRate		= decay_rate									# delta_A	
+
+
+##################################################
+##################################################
+
+
+class BetaLactam(Drug): 
+
+	# TODO: make Drug super class, make this subclass call super
+
+	def __init__(self, name="Beta-lactam", concentration=0, decay_rate=0, is_intracellular=False):
+
+		super.__init__(name, concentration, decay_rate)	
+
+		self.isIntracellular = is_intracellular				
+
+
+##################################################
+##################################################
+
+
+class BetaLactamase(Solute):
+
+	def __init__(self, name, decay_rate_intracellular, decay_rate_extracellular, max_hydrolysis_rate, halfmax_hydrolysis_drug_conc, is_intracellular, concentration=0):
+
+		super.__init__(name, concentration)
+
+		self.decayRate_intracellular 	= decay_rate_intracellular		# delta_B
+		self.decayRate_extracellular 	= decay_rate_extracellular		# delta_Bext
+
+		self.maxHydrolysisRate 	 		= max_hydrolysis_rate			# Vmax_B_i
+		self.halfmaxHydrolysisDrugConc 	= halfmax_hydrolysis_drug_conc	# k_B_i
+
+		self.isIntracellular	 		= is_intracellular				# True = in periplasm, False = in extracellular media
+
+		self.hydrolysisRate 			= 0								# d_B_i
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def __eq__(self, other):
+		return(	self.name == other.name 
+				and self.decayRate_intracellular 	== other.decayRate_intracellular
+				and self.decayRate_extracellular	== other.decayRate_extracellular
+				and self.maxHydrolysisRate 			== other.maxHydrolysisRate
+				and self.halfmaxHydrolysisDrugConc 	== other.halfmaxHydrolysisDrugConc )
+
+		
 ##################################################
 ##################################################
 
 
 class Strain:
 
-	def __init__(self, name, max_growth_rate, optimal_temp=37.0, mean_lag_exit_time=1.5, stdev_lag_exit_time=0.125, marker=''):
+	def __init__(self,name, max_growth_rate, optimal_temp=37.0, mean_lag_exit_time=1.5, stdev_lag_exit_time=0.125, 
+							halfmax_growth_nutrient_conc=numpy.inf, nutrient_consumption_rate=0,
+							marker='', plasmids=[]):
 
-		self.name 				= name
+		self.name 								= name
 
-		self.maxGrowthRate 		= max_growth_rate
-		self.optimalTemp		= optimal_temp
-		self.meanLagExitTime 	= mean_lag_exit_time
-		self.stdevLagExitTime 	= stdev_lag_exit_time
+		self.maxGrowthRate 						= max_growth_rate				# rho
+		self.optimalTemp						= optimal_temp
+		self.meanLagExitTime 					= mean_lag_exit_time
+		self.stdevLagExitTime 					= stdev_lag_exit_time
 
-		self.marker 			= marker
+		self.halfmaxGrowthNutrientConc 			= halfmax_growth_nutrient_conc 	# k_r		
+		self.nutrientConsumptionRate 			= nutrient_consumption_rate		# sigma
+
+		self.marker 							= marker
+
+		self.plasmids 							= plasmids
+
+
+##################################################
+##################################################
+
+
+class BlaStrain(Strain):
+
+	def __init__(self,name, max_growth_rate, max_lysis_rate, halfmax_lysis_drug_conc, lysis_hill_coefficient,
+							betalactamase,
+							bla_production_rate, bla_leak_rate, bla_debris_sink_fraction,
+							drug_diffusion_rate, drug_debris_sink_fraction,
+							periplasm_volume, nutrient_consumption_rate,
+							optimal_temp=37.0, mean_lag_exit_time=1.5, stdev_lag_exit_time=0.125, 
+							halfmax_growth_nutrient_conc=numpy.inf, nutrient_consumption_rate=0,
+							marker='', plasmids=[]):
+
+		super().__init__(name, max_growth_rate, optimal_temp, mean_lag_exit_time, stdev_lag_exit_time, 
+								halfmax_growth_nutrient_conc, nutrient_consumption_rate, marker, plasmids)
+
+		self.maxLysisRate						= max_lysis_rate				# lamda
+		self.halfmaxLysisDrugConc				= halfmax_lysis_drug_conc		# k_l
+		self.lysisHillCoefficient				= lysis_hill_coefficient		# eta
+		
+		self.betalactamase 						= betalactamase					# BetaLactamase object
+
+		self.betalactamaseProductionRate 		= bla_production_rate			# alpha_beta
+		self.betalactamaseLeakRate 				= bla_leak_rate					# epsilon_B
+		self.betalactamaseDebrisSinkFraction 	= bla_debris_sink_fraction		# xi_B
+
+		self.betalactamDiffusionRate 	 		= drug_diffusion_rate			# epsilon_A
+		self.betalactamDebrisSinkFraction  		= drug_debris_sink_fraction		# xi_A
+
+		self.periplasmVolume 					= periplasm_volume				# Vol # in units used for media volume
 
 
 ##################################################
@@ -43,58 +218,77 @@ class Strain:
 
 class Inoculum:
 
-	def __init__(self, strain, cell_count, growth_phase='stationary', growth_cycle_timer=0):
+	def __init__(self, strain, cell_count, growth_rate=0, growth_phase='stationary', growth_cycle_timer=0):
 
 		self.strain 			= strain
-		self.cellCount 			= cell_count
 
-		self.growthPhase 		= growth_phase # 'stationary', 'lag', 'exponential'
+		self.cellCount 			= cell_count			# N_i(t)
+
+		self.growthRate 		= growth_rate 			# r_i(t)
+
+		self.growthPhase 		= growth_phase 			# 'stationary', 'lag', 'exponential'
 		self.growthCycleTimer	= growth_cycle_timer
 
 
-	def growthRate(self, temp, saturationCoeff, dt):
-		r 	= self.strain.maxGrowthRate 	# intrinsic max exponential growth rate
-		r 	*= temp/self.strain.optimalTemp	# growth rate dependence on temperature
-		r 	*= scipy.stats.norm.cdf(self.growthCycleTimer, loc=self.strain.meanLagExitTime, scale=self.strain.stdevLagExitTime) 	# modeling lag phase exit (cells exit lag phase (r=0) and enter exponential phase (r=maxrate*otherfactors) at lag-exit-times that are normally distributed from cell to cell; this is approximated by the population's average growth rate following the normal distn cdf centered at the mean lag exit time
-		r 	*= saturationCoeff 	# growth rate dependence on carrying capacity
-		r 	= numpy.random.normal(r, r*0.02)	# additional random noise
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-		self.growthCycleTimer += dt
-		if(saturationCoeff <= 0.01):
-			self.growthPhase = 'stationary'
-		elif(self.growthPhase == 'stationary' and saturationCoeff > 0.01):
-			self.growthPhase = 'lag'
-			self.growthCycleTimer = 0.0
-		elif(self.growthPhase == 'lag' and (self.strain.maxGrowthRate-r)/self.strain.maxGrowthRate < 0.01):
-			self.growthPhase = 'exponential'
-
-		# print str(self.strain.name) + ' ' + str(self.strain.maxGrowthRate) + ' ' + str(r)+ ' ' + str(self.growthPhase) + ' ' + str(self.growthCycleTimer)
-		
-		return r
-
-
-	def incubate(self, temp, dt, saturationCoeff):
-
-		# No drug case
-		dN 	= self.growthRate(temp, saturationCoeff, dt) * self.cellCount
-		self.cellCount += dN*dt
-
-
-##################################################
-##################################################
-
-
-class Drug:
-
-	def __init__(self, name, mg, spontaneous_degradation_rate=0):
-
-		self.name 							= name
-		self.mg 							= mg		
-		self.spontaneous_degradation_rate 	= spontaneous_degradation_rate
-
-	def incubate(self, temp, dt):
-		# Do drug degradation
+	def sample(self, sample_proportion):
+		# TODO
 		return
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def add(self, added_inoculum):
+		# TODO
+		return
+
+
+##################################################
+##################################################
+
+
+class BlaInoculum(Inoculum):
+
+	def __init__(self, strain, cell_count, periplasm=None, growth_rate=0, lysis_rate=0, growth_phase='stationary', growth_cycle_timer=0):
+
+		super().__init__(strain, cell_count, growth_rate, growth_phase, growth_cycle_timer)
+
+		self.lysisRate 			= lysis_rate 			# l_i(t)
+
+		self.periplasm 			= periplasm if periplasm is not None else Media(volume=self.strain.periplasmVolume)				# holds B_i(t) and A_i(t)
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def sample(self, sample_proportion):
+		# TODO
+		return
+
+
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+	def add(self, added_inoculum):
+		# TODO
+		return
+
+
+##################################################
+##################################################
+
+
+class Plasmid:
+
+	def __init__(self, name, copy_number=1, marker=''):
+
+		self.name 				= name
+
+		self.copyNumber 		= copy_number
+		self.marker 			= marker
 
 
 ##################################################
@@ -103,21 +297,19 @@ class Drug:
 
 class CultureVolume:
 
-	def __init__(self, media=[], inoculums=[], drugs=[], name=""):
+	def __init__(self, media=[], inoculums=[], dynamics=CultureDynamics(), name=""):
 
 		self.name 		= name
 
-		self.media	= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
+		self.media 		= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
 		for media in (media if isinstance(media, list) else [media]):
 			self.media.append(media)
 
 		self.inoculums	= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
 		for inoculum in (inoculums if isinstance(inoculums, list) else [inoculums]):
-			self.inoculums.append(inoculum)
+		# 	self.inoculums.append(inoculum)
 
-		self.drugs	= []	# class instance list has to be declared this way to avoid list being shared among instances when mutable changes are made to one instance list, apparently
-		for drug in (drugs if isinstance(drugs, list) else [drugs]):
-			self.drugs.append(drug)
+		self.dynamics 	= dynamics
 
 
 	def totalVolume(self):
@@ -133,6 +325,26 @@ class CultureVolume:
 		for inoculum in self.inoculums:
 			cellCounts[inoculum.strain.name] = inoculum.cellCount
 		return cellCounts
+
+
+	def getPlasmidCounts(self):
+		plasmidCounts = {}
+		for inoculum in self.inoculums:
+			for plasmid in inoculum.strain.plasmids:
+				try:
+					plasmidCounts[plasmid.name] += inoculum.cellCount * plasmid.copyNumber
+				except KeyError:
+					plasmidCounts[plasmid.name] = inoculum.cellCount * plasmid.copyNumber
+		return plasmidCounts
+
+
+	def getPlasmidFrequencies(self):
+		plasmidFreqs 		= {}
+		plasmidCounts 		= self.getPlasmidCounts()
+		totalPlasmidCount 	= numpy.sum([plasmidCounts[plasmid] for plasmid in plasmidCounts.keys()])
+		for plasmid, count in plasmidCounts.iteritems():
+			plasmidFreqs[plasmid] = count/totalPlasmidCount
+		return plasmidFreqs
 
 
 	def getCellDensities(self):
@@ -234,10 +446,8 @@ class CultureVolume:
 		return sampledCulture
 
 
-	def incubate(self, temp, dt):
-		saturationCoeff = (self.totalCarryingCapacity() - self.totalCellDensity())/self.totalCarryingCapacity()
-		for inoculum in self.inoculums:
-			inoculum.incubate(temp=temp, dt=dt, saturationCoeff=saturationCoeff)
+	def incubate(self, time, dt, temp):
+		self.dynamics.run(time=time, dt=dt, temp=temp, inoculums=self.inoculums, media=self.media)
 
 
 	def info(self):
@@ -249,7 +459,7 @@ class CultureVolume:
 		print "\tTotal CellCount\t= " + ( '%.2E' % Decimal(str( self.totalCellCount() )) ) + " cfu"
 		if(len(self.inoculums)>0):
 			for inoculum in self.inoculums:
-				print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount/self.totalVolume() )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\n\t\tgrowthPhase\t\t= " + inoculum.growthPhase
+				print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount/self.totalVolume() )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\n\t\tgrowthPhase\t= " + inoculum.growthPhase
 		else:
 			print "\t(no inoculums)"
 		if(len(self.drugs)>0):
@@ -333,7 +543,7 @@ class AgarPlate:
 					self.colonyLandingSpots[l] = None
 
 
-	def incubate(self, temp=37.0, dt=1):
+	def incubate(self, dt=1, temp=37.0):
 		if(temp > 30):
 			for l, landingSpotMarkers in enumerate(self.colonyLandingSpots):
 				if(landingSpotMarkers != 0 and landingSpotMarkers != ''):
@@ -384,7 +594,7 @@ class Incubator:
 		self.tempSTD_location 	= temp_std_location
 		self.tempSTD_transient 	= temp_std_transient
 
-	def incubate(self, cultures, time, dt, record_growth_curves=False):
+	def incubate(self, dt, cultures, time, record_growth_curves=False):
 
 		if(not isinstance(cultures,(list, numpy.ndarray))):
 			cultures = [cultures]
@@ -403,7 +613,7 @@ class Incubator:
 			effectiveTemps 	+= numpy.random.normal(0, self.tempSTD_transient, len(effectiveTemps))
 			
 			for c, culture in enumerate(cultures):
-				culture.incubate(temp=effectiveTemps[c], dt=dt)
+				culture.incubate(dt=dt, temp=effectiveTemps[c])
 
 				if(record_growth_curves):
 					growthCurves.append( {'culture':culture.name, 'time':t+dt, 'temp':effectiveTemps[c], 'density':culture.totalCellDensity()} )

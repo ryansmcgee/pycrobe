@@ -1,0 +1,73 @@
+
+
+
+
+class Media
+
+*	S 		nutrient level
+*	A 		drug concentration
+
+*	B_ext	concentration of extracellular Bla
+
+	d_B_out	rate of degradation of extracellular Bla
+
+
+##################################################
+##################################################
+
+
+class Plasmid:
+
+
+##################################################
+##################################################
+
+
+class Strain:
+
+	mu		max growth rate
+	k_s 	half-max constant for nutrient level
+
+	d_N		max lysis rate
+	k_L 	half-max constant for lysis by drug
+	H 		Hill cofficient
+>	k_B 	half-max constant for drug degradation by periplasmic Bla
+
+	k_B_in	production rate of Bla per cell
+	d_B_in	degradation rate of of intracellular Bla
+
+
+
+
+
+##################################################
+##################################################
+
+
+class Inoculum:
+
+*	N		population size (cell count)
+
+	G		growth rate 
+	L		lysis rate	
+
+	B_in	concentration of periplasmic Bla
+
+
+
+##################################################
+##################################################
+
+
+class Drug:
+
+
+##################################################
+##################################################
+
+
+class CultureVolume:
+
+	B_in*	concentration of periplasmic Bla in the population (over all inocs/strains)
+
+	
