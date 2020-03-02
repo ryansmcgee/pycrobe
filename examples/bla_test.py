@@ -1,8 +1,8 @@
 import numpy
 import pandas
 
-from standard import *
-from betalactamase import *
+from pycrobe.standard import *
+from pycrobe.betalactamase import *
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

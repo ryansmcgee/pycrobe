@@ -1,11 +1,12 @@
-Metadata-Version: 1.0
+Metadata-Version: 1.1
 Name: pycrobe
-Version: 0.1.5
+Version: 0.2.0
 Summary: A simple package for simulations of microbial growth experiments with realistic sources of error.
 Home-page: https://github.com/ryansmcgee/pycrobe
 Author: Ryan Seamus McGee
 Author-email: ryansmcgee@gmail.com
 License: MIT
+Download-URL: https://github.com/ryansmcgee/pycrobe/archive/v0.2.tar.gz
 Description-Content-Type: UNKNOWN
 Description: UNKNOWN
 Platform: UNKNOWN
