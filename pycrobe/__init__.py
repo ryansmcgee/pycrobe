@@ -1,2 +1,3 @@
-import standard
-import betalactamase
+# __init__.py
+from .standard import *
+from .betalactamase import *
