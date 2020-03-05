@@ -220,21 +220,21 @@ class Media(object):
 
 	def info(self):
 		if(self.nutrient is not None):
-			print "\tNutrient " + self.nutrient.name + ":\n" + "\t\tconcentration\t= " + ("%.2E" % self.nutrient.concentration) + " ug/mL"
+			print("\tNutrient " + self.nutrient.name + ":\n" + "\t\tconcentration\t= " + ("%.2E" % self.nutrient.concentration) + " ug/mL")
 		else:
-			print "\t(no nutrient)"
+			print("\t(no nutrient)")
 		#----------
 		if(len(self.drugs)>0):
 			for drug in self.drugs:
-				print "\tDrug " + drug.name + ":\n" + "\t\tconcentration\t= " + ("%.3f" % drug.concentration) + " ug/mL"
+				print("\tDrug " + drug.name + ":\n" + "\t\tconcentration\t= " + ("%.3f" % drug.concentration) + " ug/mL")
 		else:
-				print "\t(no drugs)"
+				print("\t(no drugs)")
 		#----------
 		if(len(self.solutes)>0):
 			for solute in self.solutes:
-				print "\tSolute " + solute.name + ":\n" + "\t\tconcentration\t= " + (("%.3f" % solute.concentration) if solute.concentration>0.001 else ("%.2E" % solute.concentration)) + " ug/mL"
+				print("\tSolute " + solute.name + ":\n" + "\t\tconcentration\t= " + (("%.3f" % solute.concentration) if solute.concentration>0.001 else ("%.2E" % solute.concentration)) + " ug/mL")
 		else:
-				print "\t(no other solutes)"
+				print("\t(no other solutes)")
 
 
 
@@ -462,14 +462,14 @@ class CultureDynamics(object):
 					growthPhase[i] = 'exponential'
 
 
-			# print "N["+str(t)+"] = " + str(N[t])
-			# print "r["+str(t)+"] = " + str(r[t])
-			# print "S["+str(t)+"] = " + str(S[t])
-			# print "------------------------------"
-			# print "N["+str(t+1)+"] = " + str(N[t+1])
-			# print "r["+str(t+1)+"] = " + str(r[t+1])
-			# print "S["+str(t+1)+"] = " + str(S[t+1])
-			# print "=============================="
+			# print("N["+str(t)+"] = " + str(N[t]))
+			# print("r["+str(t)+"] = " + str(r[t]))
+			# print("S["+str(t)+"] = " + str(S[t]))
+			# print("------------------------------")
+			# print("N["+str(t+1)+"] = " + str(N[t+1]))
+			# print("r["+str(t+1)+"] = " + str(r[t+1]))
+			# print("S["+str(t+1)+"] = " + str(S[t+1]))
+			# print("==============================")
 
 
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -726,18 +726,18 @@ class Culture(object):
 
 
 	def info(self):
-		print "Culture " + self.name + ":"
-		print "--------------------------------"
-		print "\tVolume\t\t\t= " + ("%.3f" % self.totalVolume()) + " mL"
-		print "\tDensity\t\t\t= " + ( '%.2E' % Decimal(str( self.totalCellDensity() )) ) + " cfu/mL"
-		print "\tTotal CellCount\t= " + ( '%.2E' % Decimal(str( self.totalCellCount() )) ) + " cfu"
+		print("Culture " + self.name + ":")
+		print("--------------------------------")
+		print("\tVolume\t\t\t= " + ("%.3f" % self.totalVolume()) + " mL")
+		print("\tDensity\t\t\t= " + ( '%.2E' % Decimal(str( self.totalCellDensity() )) ) + " cfu/mL")
+		print("\tTotal CellCount\t= " + ( '%.2E' % Decimal(str( self.totalCellCount() )) ) + " cfu")
 		#----------
 		if(len(self.inoculums)>0):
 			inoculumDensities 	= self.getInoculumDensities()
 			for inoculum in self.inoculums:
-				print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculumDensities[inoculum.strain.name] )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\n\t\tfrequency\t= " + ( '%.4f' % self.getInoculumFrequencies()[inoculum.strain.name] ) + "" + "\n\t\tgrowthPhase\t= " + inoculum.growthPhase
+				print("\tInoculum " + inoculum.strain.name + ":\n" + "\t\tdensity\t\t= " + ( '%.2E' % Decimal(str( inoculumDensities[inoculum.strain.name] )) )+" cfu/mL" + "\n\t\tcell count\t= " + ( '%.2E' % Decimal(str( inoculum.cellCount )) )+" cfu" + "\n\t\tfrequency\t= " + ( '%.4f' % self.getInoculumFrequencies()[inoculum.strain.name] ) + "" + "\n\t\tgrowthPhase\t= " + inoculum.growthPhase)
 		else:
-			print "\t(no inoculums)"
+			print("\t(no inoculums)")
 		#----------
 		self.media.info()
 
@@ -783,12 +783,12 @@ class Incubator(object):
 				for c, culture in enumerate(cultures):
 					culture.incubate(time=dt, dt=dt, temp=effectiveTemps[c])
 
-					print "N["+str(t)+"] = " + str(culture.inoculums[0].cellCount)
-					print "r["+str(t)+"] = " + str(culture.inoculums[0].growthRate)
-					print "phase["+str(t)+"] = " + str(culture.inoculums[0].growthPhase)
-					print "timer["+str(t)+"] = " + str(culture.inoculums[0].growthCycleTimer)
-					print "END INCUBATOR T = "+str(t)
-					print "------------------------------"
+					print("N["+str(t)+"] = " + str(culture.inoculums[0].cellCount))
+					print("r["+str(t)+"] = " + str(culture.inoculums[0].growthRate))
+					print("phase["+str(t)+"] = " + str(culture.inoculums[0].growthPhase))
+					print("timer["+str(t)+"] = " + str(culture.inoculums[0].growthCycleTimer))
+					print("END INCUBATOR T = "+str(t))
+					print("------------------------------")
 					if(culture.media.nutrient.concentration <= 1e-1):
 						culture.info()
 						exit()
@@ -898,13 +898,13 @@ class AgarPlate(object):
 
 
 	def info(self):
-		print "AgarPlate " + self.name + ":"
-		print "--------------------------------"
-		print "\tTotal Colonies = " + str(self.totalColonyCount())
+		print("AgarPlate " + self.name + ":")
+		print("--------------------------------")
+		print("\tTotal Colonies = " + str(self.totalColonyCount()))
 		for marker in numpy.unique([inoculum.strain.marker for inoculum in self.inoculums]):
-			print "\tMarker " + marker + ":\n" + "\t\tcell count\t= " + str( self.getColonyCounts()[marker] )
+			print("\tMarker " + marker + ":\n" + "\t\tcell count\t= " + str( self.getColonyCounts()[marker] ))
 		# for inoculum in self.inoculums:
-		# 	print "\tInoculum " + inoculum.strain.name + ":\n" + "\t\tcell count\t= " + str( self.getColonyCounts()[inoculum.strain.marker] )
+		# 	print("\tInoculum " + inoculum.strain.name + ":\n" + "\t\tcell count\t= " + str( self.getColonyCounts()[inoculum.strain.marker] ))
 
 
 ##################################################

@@ -351,7 +351,7 @@ class BetaLactamaseDynamics(CultureDynamics):
 			N[t+1] 		= N[t] + dN*dt
 			N[t+1] 		= numpy.clip(N[t+1], a_min=0, a_max=None)
 
-			dB 			= -delta_B*B[t] - r[t]*B[t] - epsilon_B*(B[t] - Bext[t]) + alpha_B*( (B_max - B[t]) / (k_alpha + (B_max - B[t])) )
+			dB 			= -delta_B*B[t] - numpy.maximum((r[t]-l[t]), 0)*B[t] - epsilon_B*(B[t] - Bext[t]) + alpha_B*( (B_max - B[t]) / (k_alpha + (B_max - B[t])) )
 			B[t+1] 		= B[t] + dB*dt
 			B[t+1] 		= numpy.clip(B[t+1], a_min=0, a_max=None)
 
@@ -399,30 +399,30 @@ class BetaLactamaseDynamics(CultureDynamics):
 			d_Bext[t+1]	= (Vmax_Bext * Aext[t+1])/(k_Bext + Aext[t+1])
 
 
-			# print "N["+str(t)+"] = " + str(N[t])
-			# print "r["+str(t)+"] = " + str(r[t])
-			# print "l["+str(t)+"] = " + str(l[t])
-			# print "r-l["+str(t)+"] = " + str(r[t]-l[t])
-			# print "B["+str(t)+"] = " + str(B[t])
-			# print str(l[t]*(1-xi_B)*B[t]*Vol*N[t])
-			# print "Bext["+str(t)+"] = " + str(Bext[t])
-			# print "A["+str(t)+"] = " + str(A[t])
-			# print "Aext["+str(t)+"] = " + str(Aext[t])
-			# print "d_B["+str(t)+"] = " + str(d_B[t])
-			# print "d_Bext["+str(t)+"] = " + str(d_Bext[t])
-			# print "S["+str(t)+"] = " + str(S[t])
-			# print "------------------------------"
-			# print "N["+str(t+1)+"] = " + str(N[t+1])
-			# print "r["+str(t+1)+"] = " + str(r[t+1])
-			# print "l["+str(t+1)+"] = " + str(l[t+1])
-			# print "B["+str(t+1)+"] = " + str(B[t+1])
-			# print "Bext["+str(t+1)+"] = " + str(Bext[t+1])
-			# print "A["+str(t+1)+"] = " + str(A[t+1])
-			# print "Aext["+str(t+1)+"] = " + str(Aext[t+1])
-			# print "d_B["+str(t+1)+"] = " + str(d_B[t+1])
-			# print "d_Bext["+str(t+1)+"] = " + str(d_Bext[t+1])
-			# print "S["+str(t+1)+"] = " + str(S[t+1])
-			# print "=============================="
+			# print("N["+str(t)+"] = " + str(N[t]))
+			# print("r["+str(t)+"] = " + str(r[t]))
+			# print("l["+str(t)+"] = " + str(l[t]))
+			# print("r-l["+str(t)+"] = " + str(r[t]-l[t]))
+			# print("B["+str(t)+"] = " + str(B[t]))
+			# print(str(l[t]*(1-xi_B)*B[t]*Vol*N[t]))
+			# print("Bext["+str(t)+"] = " + str(Bext[t]))
+			# print("A["+str(t)+"] = " + str(A[t]))
+			# print("Aext["+str(t)+"] = " + str(Aext[t]))
+			# print("d_B["+str(t)+"] = " + str(d_B[t]))
+			# print("d_Bext["+str(t)+"] = " + str(d_Bext[t]))
+			# print("S["+str(t)+"] = " + str(S[t]))
+			# print("------------------------------")
+			# print("N["+str(t+1)+"] = " + str(N[t+1]))
+			# print("r["+str(t+1)+"] = " + str(r[t+1]))
+			# print("l["+str(t+1)+"] = " + str(l[t+1]))
+			# print("B["+str(t+1)+"] = " + str(B[t+1]))
+			# print("Bext["+str(t+1)+"] = " + str(Bext[t+1]))
+			# print("A["+str(t+1)+"] = " + str(A[t+1]))
+			# print("Aext["+str(t+1)+"] = " + str(Aext[t+1]))
+			# print("d_B["+str(t+1)+"] = " + str(d_B[t+1]))
+			# print("d_Bext["+str(t+1)+"] = " + str(d_Bext[t+1]))
+			# print("S["+str(t+1)+"] = " + str(S[t+1]))
+			# print("==============================")
 
 
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
