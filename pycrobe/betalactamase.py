@@ -357,7 +357,7 @@ class BetaLactamaseDynamics(CultureDynamics):
 
 			dBext 		= -delta_Bext*Bext[t] + epsilon_B*(B[t] - Bext[t])*Vol*N[t] + l[t]*(1-xi_B)*B[t]*Vol*N[t]
 			Bext[t+1] 	= Bext[t] + dBext*dt
-			Bext[t+1] 		= numpy.clip(Bext[t+1], a_min=0, a_max=None)
+			Bext[t+1] 	= numpy.clip(Bext[t+1], a_min=0, a_max=None)
 
 			dA 			= -delta_A*A[t] - d_B[t]*B[t] - r[t]*A[t] + epsilon_A*(Aext[t] - A[t])
 			A[t+1] 		= A[t] + dA*dt

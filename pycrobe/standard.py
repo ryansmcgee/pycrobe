@@ -662,7 +662,7 @@ class Culture(object):
 		plasmidFreqs 		= {}
 		plasmidCounts 		= self.getPlasmidCounts()
 		totalPlasmidCount 	= numpy.sum([plasmidCounts[plasmid] for plasmid in plasmidCounts.keys()])
-		for plasmid, count in plasmidCounts.iteritems():
+		for plasmid, count in plasmidCounts.items():
 			plasmidFreqs[plasmid] = count/totalPlasmidCount
 		return plasmidFreqs
 
@@ -676,7 +676,7 @@ class Culture(object):
 
 	def getInoculumFrequencies(self):
 		frequencies = {}
-		for inoculum, count in self.getCellCounts().iteritems():
+		for inoculum, count in self.getCellCounts().items():
 			frequencies[inoculum] = count / self.totalCellCount()
 		return frequencies
 
@@ -691,7 +691,7 @@ class Culture(object):
 	def getMarkerDensities(self):
 		markerDensities = {}
 		markerCounts = self.getMarkerCounts()
-		for marker, markerCount in markerCounts.iteritems():
+		for marker, markerCount in markerCounts.items():
 			markerDensities[marker] = markerCount / self.totalVolume()
 		return markerDensities
 
