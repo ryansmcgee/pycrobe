@@ -6,7 +6,7 @@ import pandas
 import scipy.stats
 import copy
 
-from standard import *
+from .standard import *
 
 
 ##################################################
