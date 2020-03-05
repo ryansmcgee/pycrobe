@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='pycrobe',
 		packages=['pycrobe'],
-		version='0.2.0',
+		version='0.2.1',
 		description='A simple package for simulations of microbial growth experiments with realistic sources of error.',
 		author='Ryan Seamus McGee',
 		author_email='ryansmcgee@gmail.com',
