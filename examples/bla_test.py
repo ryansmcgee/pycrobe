@@ -1,9 +1,9 @@
 import numpy
 import pandas
 
-from pycrobe.standard import *
-from pycrobe.betalactamase import *
-
+# from pycrobe.standard import *
+# from pycrobe.betalactamase import *
+import pycrobe
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,13 +15,13 @@ strainNames = ["TEM-"+str(int(Vmax)) for Vmax in VMAX_B]
 
 strains 	= {}
 for i, strainName in enumerate(strainNames):
-	strains[strainName] = BlaStrain(name = strainName, 					
+	strains[strainName] = pycrobe.BlaStrain(name = strainName, 					
 									max_growth_rate 					= 2, 
 									max_lysis_rate 						= 1, 				
 									halfmax_lysis_drug_conc 			= 0.125,			# ug/mL <- scMIC for Bla-free strain
 									lysis_hill_coefficient 				= 5,				# ?
 									betalactamase = 
-										BetaLactamase(
+										pycrobe.BetaLactamase(
 											name = "Bla-"+strainName, 
 											decay_rate_intracellular 	= 0, 
 											decay_rate_extracellular 	= 0, 
@@ -51,16 +51,16 @@ for i, strainName in enumerate(strainNames):
 
 
 volume 	= 5.0 # mL 
-culture = Culture(	media=Media(volume=volume, 
-								drugs=[BetaLactam(name="CTX", concentration=0.25)], 
-								nutrient=Nutrient(name="LB", concentration=2e9)),
+culture = pycrobe.Culture(	media=pycrobe.Media(volume=volume, 
+								drugs=[pycrobe.BetaLactam(name="CTX", concentration=0.25)], 
+								nutrient=pycrobe.Nutrient(name="LB", concentration=2e9)),
 				  	inoculums=[
-				  				BlaInoculum(strain=strains[strainName], cell_count=(1e5/len(strains))*volume) for strainName in strains.keys()
+				  				pycrobe.BlaInoculum(strain=strains[strainName], cell_count=(1e5/len(strains))*volume) for strainName in strains.keys()
 				  			  ],
-					dynamics=BetaLactamaseDynamics() )
+					dynamics=pycrobe.BetaLactamaseDynamics() )
 culture.info()
 
-incubator = Incubator(set_temp=37.0, temp_std_batch=0.5, temp_std_location=0.25, temp_std_transient=0.00)
+incubator = pycrobe.Incubator(set_temp=37.0, temp_std_batch=0.5, temp_std_location=0.25, temp_std_transient=0.00)
 
 incubator.incubate(cultures=[culture], time=24, dt=0.01)
 

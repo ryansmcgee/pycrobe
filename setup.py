@@ -10,6 +10,4 @@ setup(name='pycrobe',
 		url='https://github.com/ryansmcgee/pycrobe',
 		download_url='https://github.com/ryansmcgee/pycrobe/archive/v0.2.tar.gz',
 		install_requires=['numpy', 'scipy', 'pandas'],
-		
-      
-      zip_safe=False)
+		zip_safe=False)
